@@ -88,16 +88,18 @@ export const deleteNote = async (id: string): Promise<Note> => {
 
 // Отримати нотатку за ID
 export const fetchNoteById = async (id: string): Promise<Note> => {
+  const normalizedIdMatch = id.match(/[a-z0-9]{20,}$/i);
+  const normalizedId = normalizedIdMatch ? normalizedIdMatch[0] : id;
+
   try {
-    console.log(`Fetching note with ID: ${id}`);
-    const response: AxiosResponse<Note> = await instance.get(`/notes/${id}`);
+    const response: AxiosResponse<Note> = await instance.get(`/notes/${normalizedId}`);
     console.log("Note fetched successfully:", response.data);
     return response.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response?.status === 404) {
-      console.error(`Note with ID ${id} not found.`);
+      console.error(`Note with ID ${normalizedId} not found.`);
     } else {
-      console.error(`Error fetching note ${id}:`, error);
+      console.error(`Error fetching note ${normalizedId}:`, error);
     }
     throw error;
   }

@@ -6,13 +6,13 @@ import axios from "axios";
 export default async function FilteredNotesPage({
   params,
 }: {
-  params: Promise<{ tag?: string[] }>;
+  params: Promise<{ slug?: string[] }>;
 }) {
   const resolved = await params;
-  const tag = resolved.tag?.[0] || "all";
+  const slug = resolved.slug?.[0] || "all";
 
   const normalizedTag =
-    tag === "all" ? undefined : tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase();
+    slug === "all" ? undefined : slug.charAt(0).toUpperCase() + slug.slice(1).toLowerCase();
 
   let notes: Note[] = [];
   let errorMessage: string | null = null;
@@ -39,10 +39,8 @@ export default async function FilteredNotesPage({
 
   return (
     <div>
-      <h2>{tag === "all" ? "All Notes" : `Notes tagged "${normalizedTag}"`}</h2>
+      <h2>{slug === "all" ? "All Notes" : `Notes tagged "${normalizedTag}"`}</h2>
       <NoteList notes={notes} />
     </div>
   );
 }
-
-

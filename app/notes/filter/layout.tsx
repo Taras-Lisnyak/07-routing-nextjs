@@ -3,24 +3,19 @@ import css from "./LayoutNotes.module.css";
 
 export default function NotesFilterLayout({
   sidebar,
-  modal,
   children,
 }: {
   sidebar: React.ReactNode;
-  modal: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
-    <>
-      <div className={css.layout}>
-        <aside className={css.sidebar}>
-          <SidebarNotes />
-          {sidebar}
-        </aside>
-        <main className={css.content}>{children}</main>
-      </div>
-      {modal}
-    </>
+    <div className={css.layout}>
+      <aside className={css.sidebar}>
+        <SidebarNotes />
+        {sidebar}
+      </aside>
+      <main className={css.content}>{children}</main>
+    </div>
   );
 }
 
