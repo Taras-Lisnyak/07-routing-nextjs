@@ -31,7 +31,7 @@ export default function NoteDetailsClient({ id, isModal = false }: NoteDetailsCl
   return (
     <article className={css.article}>
       {!isModal && (
-        <Link href="/notes" className={css.backLink}>
+        <Link href="/notes/filter/all" className={css.backLink}>
           ← Back to Notes
         </Link>
       )}

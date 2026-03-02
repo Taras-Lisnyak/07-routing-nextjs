@@ -1,7 +1,7 @@
+import { QueryClient, dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { fetchNotes } from "@/lib/api";
-import type { Note } from "@/types/note";
-import NoteList from "@/components/NoteList/NoteList";
-import axios from "axios";
+import FilteredNotesClient from "../FilteredNotesClient";
+import css from "../NotesPage.module.css";
 
 export default async function FilteredNotesPage({
   params,
@@ -14,33 +14,20 @@ export default async function FilteredNotesPage({
   const normalizedTag =
     slug === "all" ? undefined : slug.charAt(0).toUpperCase() + slug.slice(1).toLowerCase();
 
-  let notes: Note[] = [];
-  let errorMessage: string | null = null;
+  const queryClient = new QueryClient();
 
-  try {
-    const data = await fetchNotes(1, 12, undefined, normalizedTag);
-    notes = data.notes;
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response?.status === 429) {
-      errorMessage = "Too many requests right now. Please wait 30-60 seconds and try again.";
-    } else {
-      errorMessage =
-        "Could not fetch the list of notes. Please check your backend connection.";
-    }
-  }
+  await queryClient.prefetchQuery({
+    queryKey: ["notes", 1, "", normalizedTag ?? "all"],
+    queryFn: () => fetchNotes(1, 12, "", normalizedTag),
+  });
 
-  if (errorMessage) {
-    return <p>{errorMessage}</p>;
-  }
-
-  if (!notes || notes.length === 0) {
-    return <p>No notes found for this tag.</p>;
-  }
+  const dehydratedState = dehydrate(queryClient);
 
   return (
-    <div>
-      <h2>{slug === "all" ? "All Notes" : `Notes tagged "${normalizedTag}"`}</h2>
-      <NoteList notes={notes} />
-    </div>
+    <main className={css.container}>
+      <HydrationBoundary state={dehydratedState}>
+        <FilteredNotesClient slug={slug} normalizedTag={normalizedTag} />
+      </HydrationBoundary>
+    </main>
   );
 }
