@@ -2,16 +2,25 @@
 
 import { useRouter } from "next/navigation";
 import Modal from "../../../../components/Modal/Modal";
+import { useQuery } from "@tanstack/react-query";
 import type { Note } from "../../../../types/note";
-import css from "./NotePreview.module.css";
+import { fetchNoteById } from "../../../../lib/api";
+import css from "../../../../components/NotePreview/NotePreview.module.css";
 
 interface NotePreviewProps {
-  note?: Note;
-  errorMessage?: string;
+  id: string;
 }
 
-export default function NotePreview({ note, errorMessage }: NotePreviewProps) {
+export default function NotePreviewClient({ id }: NotePreviewProps) {
   const router = useRouter();
+
+  const { data: note, isLoading, isError } = useQuery<Note>(
+    {
+      queryKey: ["note", id],
+      queryFn: () => fetchNoteById(id),
+      refetchOnMount: false,
+    } as import("@tanstack/react-query").UseQueryOptions<Note>
+  );
 
   const handleClose = () => {
     router.back();
@@ -20,9 +29,16 @@ export default function NotePreview({ note, errorMessage }: NotePreviewProps) {
   return (
     <Modal onClose={handleClose}>
       <div className={css.container}>
-        {!note ? (
+        {isLoading ? (
           <article className={css.item}>
-            <p className={css.content}>{errorMessage ?? "Could not fetch note details."}</p>
+            <p className={css.content}>Loading note...</p>
+            <button type="button" className={css.backBtn} onClick={handleClose}>
+              Close
+            </button>
+          </article>
+        ) : isError || !note ? (
+          <article className={css.item}>
+            <p className={css.content}>Could not fetch note details. Please try again.</p>
             <button type="button" className={css.backBtn} onClick={handleClose}>
               Close
             </button>
@@ -35,7 +51,7 @@ export default function NotePreview({ note, errorMessage }: NotePreviewProps) {
             </div>
             <p className={css.content}>{note.content}</p>
             <p className={css.date}>
-              Updated: {new Date(note.updatedAt).toLocaleString()}
+              Created: {new Date(note.createdAt).toLocaleString()}
             </p>
             <button type="button" className={css.backBtn} onClick={handleClose}>
               Close

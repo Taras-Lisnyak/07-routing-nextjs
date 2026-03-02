@@ -1,5 +1,6 @@
-import NotePreview from "@/components/NotePreview/NotePreview";
+import { QueryClient, dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { fetchNoteById } from "@/lib/api";
+import NotePreviewClient from "./NotePreview.client";
 
 export default async function NotePreviewPage({
   params,
@@ -9,11 +10,18 @@ export default async function NotePreviewPage({
   const { id } = await params;
   const normalizedIdMatch = id.match(/[a-z0-9]{20,}$/i);
   const normalizedId = normalizedIdMatch ? normalizedIdMatch[0] : id;
+  const queryClient = new QueryClient();
 
-  try {
-    const note = await fetchNoteById(normalizedId);
-    return <NotePreview note={note} />;
-  } catch {
-    return <NotePreview errorMessage="Could not fetch note details. Please try again." />;
-  }
+  await queryClient.prefetchQuery({
+    queryKey: ["note", normalizedId],
+    queryFn: () => fetchNoteById(normalizedId),
+  });
+
+  const dehydratedState = dehydrate(queryClient);
+
+  return (
+    <HydrationBoundary state={dehydratedState}>
+      <NotePreviewClient id={normalizedId} />
+    </HydrationBoundary>
+  );
 }

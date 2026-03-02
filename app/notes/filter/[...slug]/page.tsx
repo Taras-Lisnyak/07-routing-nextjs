@@ -6,10 +6,10 @@ import css from "../NotesPage.module.css";
 export default async function FilteredNotesPage({
   params,
 }: {
-  params: Promise<{ slug?: string[] }>;
+  params: Promise<{ slug: string[] }>;
 }) {
   const resolved = await params;
-  const slug = resolved.slug?.[0] || "all";
+  const slug = resolved.slug[0];
 
   const normalizedTag =
     slug === "all" ? undefined : slug.charAt(0).toUpperCase() + slug.slice(1).toLowerCase();

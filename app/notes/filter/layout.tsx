@@ -1,4 +1,3 @@
-import SidebarNotes from "./@sidebar/SidebarNotes";
 import css from "./LayoutNotes.module.css";
 
 export default function NotesFilterLayout({
@@ -10,10 +9,7 @@ export default function NotesFilterLayout({
 }) {
   return (
     <div className={css.layout}>
-      <aside className={css.sidebar}>
-        <SidebarNotes />
-        {sidebar}
-      </aside>
+      <aside className={css.sidebar}>{sidebar}</aside>
       <main className={css.content}>{children}</main>
     </div>
   );
